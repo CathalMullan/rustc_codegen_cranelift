@@ -249,6 +249,12 @@ impl<'tcx> InlineAssemblyGenerator<'_, 'tcx> {
         let mut allocated = FxHashMap::<_, (bool, bool)>::default();
         let mut regs = vec![None; self.operands.len()];
 
+        // `rbx` is used by the asm wrapper.
+        // Mark `bx` as in-use so the allocator won't corrupt it.
+        if self.arch == InlineAsmArch::X86_64 {
+            allocated.insert(InlineAsmReg::X86(X86InlineAsmReg::bx), (true, true));
+        }
+
         // Add explicit registers to the allocated set.
         for (i, operand) in self.operands.iter().enumerate() {
             match *operand {
