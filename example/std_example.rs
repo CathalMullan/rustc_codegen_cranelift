@@ -10,6 +10,8 @@
 #![allow(internal_features)]
 
 #[cfg(target_arch = "x86_64")]
+use std::arch::asm;
+#[cfg(target_arch = "x86_64")]
 use std::arch::x86_64::*;
 use std::hint::black_box;
 use std::io::Write;
@@ -279,6 +281,17 @@ unsafe fn test_simd() {
 
         #[cfg(not(jit))]
         test_crc32();
+
+        #[cfg(not(jit))]
+        test_xmm_roundtrip();
+        #[cfg(not(jit))]
+        if is_x86_feature_detected!("avx") {
+            test_ymm_roundtrip();
+        }
+        #[cfg(not(jit))]
+        if is_x86_feature_detected!("avx512f") {
+            test_zmm_roundtrip();
+        }
     }
 }
 
@@ -574,6 +587,65 @@ unsafe fn test_mm_cvtps_ph() {
     let r = _mm_cvtps_ph::<_MM_FROUND_CUR_DIRECTION>(a);
     let e = _mm_set_epi16(0, 0, 0, 0, F16_ONE, F16_TWO, F16_THREE, F16_FOUR);
     assert_eq_m128i(r, e);
+}
+
+#[cfg(target_arch = "x86_64")]
+#[cfg(not(jit))]
+unsafe fn test_xmm_roundtrip() {
+    unsafe {
+        let input = [1u8; 16];
+        let mut output = [0u8; 16];
+
+        asm!(
+            "movups {xmm}, [{input}]",
+            "movups [{output}], {xmm}",
+            input = in(reg) input.as_ptr(),
+            output = in(reg) output.as_mut_ptr(),
+            xmm = out(xmm_reg) _,
+        );
+
+        assert_eq!(input, output);
+    }
+}
+
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "avx")]
+#[cfg(not(jit))]
+unsafe fn test_ymm_roundtrip() {
+    unsafe {
+        let input = [1u8; 32];
+        let mut output = [0u8; 32];
+
+        asm!(
+            "vmovups {ymm}, [{input}]",
+            "vmovups [{output}], {ymm}",
+            input = in(reg) input.as_ptr(),
+            output = in(reg) output.as_mut_ptr(),
+            ymm = out(ymm_reg) _,
+        );
+
+        assert_eq!(input, output);
+    }
+}
+
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "avx512f")]
+#[cfg(not(jit))]
+unsafe fn test_zmm_roundtrip() {
+    unsafe {
+        let input = [1u8; 64];
+        let mut output = [0u8; 64];
+
+        asm!(
+            "vmovups {zmm}, [{input}]",
+            "vmovups [{output}], {zmm}",
+            input = in(reg) input.as_ptr(),
+            output = in(reg) output.as_mut_ptr(),
+            zmm = out(zmm_reg) _,
+        );
+
+        assert_eq!(input, output);
+    }
 }
 
 fn test_checked_mul() {
