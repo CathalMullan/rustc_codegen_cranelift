@@ -260,6 +260,86 @@ unsafe fn test_vrndnq_f32() {
 }
 
 #[cfg(target_arch = "aarch64")]
+unsafe fn test_vsli_n_s8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.vsli.v8i8
+    let a = i8x8::from([0, 1, 2, 3, 4, 5, 6, 7]);
+    let b = i8x8::from([8, 9, 10, 11, 12, 13, 14, 15]);
+    let e = i8x8::from([16, 19, 20, 23, 24, 27, 28, 31]);
+    let r: i8x8 = unsafe { transmute(vsli_n_s8::<1>(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vsli_n_s16() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.vsli.v4i16
+    let a = i16x4::from([0, 1, 2, 3]);
+    let b = i16x4::from([4, 5, 6, 7]);
+    let e = i16x4::from([8, 11, 12, 15]);
+    let r: i16x4 = unsafe { transmute(vsli_n_s16::<1>(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vsli_n_s32() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.vsli.v2i32
+    let a = i32x2::from([0, 1]);
+    let b = i32x2::from([2, 3]);
+    let e = i32x2::from([4, 7]);
+    let r: i32x2 = unsafe { transmute(vsli_n_s32::<1>(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vsli_n_s64() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.vsli.v1i64
+    let a = i64x1::from([0]);
+    let b = i64x1::from([1]);
+    let e = i64x1::from([2]);
+    let r: i64x1 = unsafe { transmute(vsli_n_s64::<1>(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vsliq_n_s8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.vsli.v16i8
+    let a = i8x16::from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+    let b = i8x16::from([16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]);
+    let e = i8x16::from([32, 35, 36, 39, 40, 43, 44, 47, 48, 51, 52, 55, 56, 59, 60, 63]);
+    let r: i8x16 = unsafe { transmute(vsliq_n_s8::<1>(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vsliq_n_s16() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.vsli.v8i16
+    let a = i16x8::from([0, 1, 2, 3, 4, 5, 6, 7]);
+    let b = i16x8::from([8, 9, 10, 11, 12, 13, 14, 15]);
+    let e = i16x8::from([16, 19, 20, 23, 24, 27, 28, 31]);
+    let r: i16x8 = unsafe { transmute(vsliq_n_s16::<1>(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vsliq_n_s32() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.vsli.v4i32
+    let a = i32x4::from([0, 1, 2, 3]);
+    let b = i32x4::from([4, 5, 6, 7]);
+    let e = i32x4::from([8, 11, 12, 15]);
+    let r: i32x4 = unsafe { transmute(vsliq_n_s32::<1>(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vsliq_n_s64() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.vsli.v2i64
+    let a = i64x2::from([0, 1]);
+    let b = i64x2::from([2, 3]);
+    let e = i64x2::from([4, 7]);
+    let r: i64x2 = unsafe { transmute(vsliq_n_s64::<1>(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
 #[target_feature(enable = "aes")]
 unsafe fn test_vaeseq_u8() {
     // AArch64 llvm intrinsic: llvm.aarch64.crypto.aese
@@ -887,6 +967,16 @@ fn main() {
         test_vminq_f32();
         test_vaddvq_f32();
         test_vrndnq_f32();
+
+        test_vsli_n_s8();
+        test_vsli_n_s16();
+        test_vsli_n_s32();
+        test_vsli_n_s64();
+
+        test_vsliq_n_s8();
+        test_vsliq_n_s16();
+        test_vsliq_n_s32();
+        test_vsliq_n_s64();
 
         test_crc32();
 

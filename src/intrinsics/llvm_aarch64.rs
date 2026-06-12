@@ -444,6 +444,29 @@ pub(super) fn codegen_aarch64_llvm_intrinsic_call<'tcx>(
             }
         }
 
+        "llvm.aarch64.neon.vsli.v8i8"
+        | "llvm.aarch64.neon.vsli.v4i16"
+        | "llvm.aarch64.neon.vsli.v2i32"
+        | "llvm.aarch64.neon.vsli.v1i64"
+        | "llvm.aarch64.neon.vsli.v16i8"
+        | "llvm.aarch64.neon.vsli.v8i16"
+        | "llvm.aarch64.neon.vsli.v4i32"
+        | "llvm.aarch64.neon.vsli.v2i64" => {
+            // https://developer.arm.com/documentation/ddi0602/2026-03/SIMD-FP-Instructions/SLI--Shift-left-and-insert--immediate--
+            intrinsic_args!(fx, args => (a, b, c); intrinsic);
+
+            let c = c.load_scalar(fx);
+
+            simd_pair_for_each_lane(fx, a, b, ret, &|fx, lane_ty, _res_lane_ty, a_lane, b_lane| {
+                let lane_clif_ty = fx.clif_type(lane_ty).unwrap();
+                let ones = fx.bcx.ins().iconst(lane_clif_ty, -1);
+                let mask = fx.bcx.ins().ishl(ones, c);
+                let shifted = fx.bcx.ins().ishl(b_lane, c);
+                let masked = fx.bcx.ins().band_not(a_lane, mask);
+                fx.bcx.ins().bor(masked, shifted)
+            });
+        }
+
         /*
         _ if intrinsic.starts_with("llvm.aarch64.neon.sshl.v")
             || intrinsic.starts_with("llvm.aarch64.neon.sqshl.v")
