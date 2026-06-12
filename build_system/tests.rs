@@ -146,9 +146,9 @@ static REGEX: CargoProject = CargoProject::new(REGEX_REPO.source_dir(), "regex_t
 pub(crate) static GRAVIOLA_REPO: GitRepo = GitRepo::github(
     "ctz",
     "graviola",
-    "c779b83cfd7114c4802293700c92cfb5e05cb4b7",
+    "4b9b97e3ad1821c85903440a4d6474a42f46c44e",
     &["thirdparty/cavp", "thirdparty/wycheproof"],
-    "e0925ceb21a56101",
+    "597bee812a970d19",
     "graviola",
 );
 
@@ -231,9 +231,14 @@ const EXTENDED_SYSROOT_SUITE: &[TestCase] = &[
             test_cmd.env("GRAVIOLA_CPU_DISABLE_avx512bw", "1");
             test_cmd.env("GRAVIOLA_CPU_DISABLE_avx512vl", "1");
 
+            // FIXME: https://github.com/rust-lang/rustc_codegen_cranelift/issues/1520
+            test_cmd.env("AWS_LC_SYS_NO_U1_BINDINGS", "1");
+
             test_cmd.args([
                 "-p",
                 "graviola",
+                "-p",
+                "rustls-graviola",
                 "--lib",
                 "--",
                 "-q",
@@ -245,7 +250,7 @@ const EXTENDED_SYSROOT_SUITE: &[TestCase] = &[
         } else {
             eprintln!("Cross-Compiling: Not running tests");
             let mut build_cmd = GRAVIOLA.build(&runner.target_compiler, &runner.dirs);
-            build_cmd.args(["-p", "graviola", "--lib"]);
+            build_cmd.args(["-p", "graviola", "-p", "rustls-graviola", "--lib"]);
             spawn_and_wait(build_cmd);
         }
     }),
