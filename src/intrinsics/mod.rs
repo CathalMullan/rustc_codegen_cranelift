@@ -118,7 +118,6 @@ fn simd_pair_for_each_lane<'tcx>(
     ret: CPlace<'tcx>,
     f: &dyn Fn(&mut FunctionCx<'_, '_, 'tcx>, Ty<'tcx>, Ty<'tcx>, Value, Value) -> Value,
 ) {
-    assert_eq!(x.layout(), y.layout());
     let layout = x.layout();
 
     let (lane_count, lane_ty) = layout.ty.simd_size_and_type(fx.tcx);

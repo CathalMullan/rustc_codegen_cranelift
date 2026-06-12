@@ -340,6 +340,166 @@ unsafe fn test_vsliq_n_s64() {
 }
 
 #[cfg(target_arch = "aarch64")]
+unsafe fn test_vshl_s8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.sshl.v8i8
+    let a = i8x8::from([-8, -7, -6, -5, -4, -3, -2, -1]);
+    let b = i8x8::from([1, 2, 3, 4, 5, 6, 7, 8]);
+    let e = i8x8::from([-16, -28, -48, -80, -128, 64, 0, 0]);
+    let r: i8x8 = unsafe { transmute(vshl_s8(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vshl_s16() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.sshl.v4i16
+    let a = i16x4::from([-8, -7, -6, -5]);
+    let b = i16x4::from([254, 255, 256, 257]);
+    let e = i16x4::from([-2, -4, -6, -10]);
+    let r: i16x4 = unsafe { transmute(vshl_s16(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vshl_s32() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.sshl.v2i32
+    let a = i32x2::from([-4, -3]);
+    let b = i32x2::from([-1, 1]);
+    let e = i32x2::from([-2, -6]);
+    let r: i32x2 = unsafe { transmute(vshl_s32(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vshl_s64() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.sshl.v1i64
+    let a = i64x1::from([-2]);
+    let b = i64x1::from([-1]);
+    let e = i64x1::from([-1]);
+    let r: i64x1 = unsafe { transmute(vshl_s64(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vshlq_s8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.sshl.v16i8
+    let a = i8x16::from([-16, -15, -14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1]);
+    let b = i8x16::from([-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7]);
+    let e = i8x16::from([-1, -1, -1, -1, -1, -2, -3, -5, -8, -14, -24, -40, -64, -96, -128, -128]);
+    let r: i8x16 = unsafe { transmute(vshlq_s8(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vshlq_s16() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.sshl.v8i16
+    let a = i16x8::from([-8, -7, -6, -5, -4, -3, -2, -1]);
+    let b = i16x8::from([-4, -3, -2, -1, 0, 1, 2, 3]);
+    let e = i16x8::from([-1, -1, -2, -3, -4, -6, -8, -8]);
+    let r: i16x8 = unsafe { transmute(vshlq_s16(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vshlq_s32() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.sshl.v4i32
+    let a = i32x4::from([-8, -7, -6, -5]);
+    let b = i32x4::from([-2, -1, 0, 1]);
+    let e = i32x4::from([-2, -4, -6, -10]);
+    let r: i32x4 = unsafe { transmute(vshlq_s32(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vshlq_s64() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.sshl.v2i64
+    let a = i64x2::from([-4, -3]);
+    let b = i64x2::from([-1, 1]);
+    let e = i64x2::from([-2, -6]);
+    let r: i64x2 = unsafe { transmute(vshlq_s64(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vshl_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.ushl.v8i8
+    let a = u8x8::from([248, 249, 250, 251, 252, 253, 254, 255]);
+    let b = i8x8::from([-4, -3, -2, -1, 0, 1, 2, 3]);
+    let e = u8x8::from([15, 31, 62, 125, 252, 250, 248, 248]);
+    let r: u8x8 = unsafe { transmute(vshl_u8(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vshl_u16() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.ushl.v4i16
+    let a = u16x4::from([8, 9, 10, 11]);
+    let b = i16x4::from([254, 255, 256, 257]);
+    let e = u16x4::from([2, 4, 10, 22]);
+    let r: u16x4 = unsafe { transmute(vshl_u16(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vshl_u32() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.ushl.v2i32
+    let a = u32x2::from([8, 9]);
+    let b = i32x2::from([-1, 1]);
+    let e = u32x2::from([4, 18]);
+    let r: u32x2 = unsafe { transmute(vshl_u32(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vshl_u64() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.ushl.v1i64
+    let a = u64x1::from([8]);
+    let b = i64x1::from([-1]);
+    let e = u64x1::from([4]);
+    let r: u64x1 = unsafe { transmute(vshl_u64(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vshlq_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.ushl.v16i8
+    let a = u8x16::from([16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]);
+    let b = i8x16::from([-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7]);
+    let e = u8x16::from([0, 0, 0, 0, 1, 2, 5, 11, 24, 50, 104, 216, 192, 160, 128, 128]);
+    let r: u8x16 = unsafe { transmute(vshlq_u8(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vshlq_u16() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.ushl.v8i16
+    let a = u16x8::from([8, 9, 10, 11, 12, 13, 14, 15]);
+    let b = i16x8::from([-4, -3, -2, -1, 0, 1, 2, 3]);
+    let e = u16x8::from([0, 1, 2, 5, 12, 26, 56, 120]);
+    let r: u16x8 = unsafe { transmute(vshlq_u16(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vshlq_u32() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.ushl.v4i32
+    let a = u32x4::from([8, 9, 10, 11]);
+    let b = i32x4::from([-2, -1, 0, 1]);
+    let e = u32x4::from([2, 4, 10, 22]);
+    let r: u32x4 = unsafe { transmute(vshlq_u32(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vshlq_u64() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.ushl.v2i64
+    let a = u64x2::from([8, 9]);
+    let b = i64x2::from([-1, 1]);
+    let e = u64x2::from([4, 18]);
+    let r: u64x2 = unsafe { transmute(vshlq_u64(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
 #[target_feature(enable = "aes")]
 unsafe fn test_vaeseq_u8() {
     // AArch64 llvm intrinsic: llvm.aarch64.crypto.aese
@@ -977,6 +1137,26 @@ fn main() {
         test_vsliq_n_s16();
         test_vsliq_n_s32();
         test_vsliq_n_s64();
+
+        test_vshl_s8();
+        test_vshl_s16();
+        test_vshl_s32();
+        test_vshl_s64();
+
+        test_vshlq_s8();
+        test_vshlq_s16();
+        test_vshlq_s32();
+        test_vshlq_s64();
+
+        test_vshl_u8();
+        test_vshl_u16();
+        test_vshl_u32();
+        test_vshl_u64();
+
+        test_vshlq_u8();
+        test_vshlq_u16();
+        test_vshlq_u32();
+        test_vshlq_u64();
 
         test_crc32();
 

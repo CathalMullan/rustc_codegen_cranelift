@@ -444,6 +444,89 @@ pub(super) fn codegen_aarch64_llvm_intrinsic_call<'tcx>(
             }
         }
 
+        "llvm.aarch64.neon.sshl.v8i8"
+        | "llvm.aarch64.neon.sshl.v4i16"
+        | "llvm.aarch64.neon.sshl.v2i32"
+        | "llvm.aarch64.neon.sshl.v1i64"
+        | "llvm.aarch64.neon.sshl.v16i8"
+        | "llvm.aarch64.neon.sshl.v8i16"
+        | "llvm.aarch64.neon.sshl.v4i32"
+        | "llvm.aarch64.neon.sshl.v2i64" => {
+            // https://developer.arm.com/documentation/ddi0602/2026-03/SIMD-FP-Instructions/SSHL--Signed-shift-left--register--
+            intrinsic_args!(fx, args => (a, b); intrinsic);
+
+            simd_pair_for_each_lane(fx, a, b, ret, &|fx, lane_ty, _res_lane_ty, a_lane, b_lane| {
+                let lane_clif_ty = fx.clif_type(lane_ty).unwrap();
+                let esize = i64::from(lane_clif_ty.bits());
+
+                let shift = if lane_clif_ty == types::I8 {
+                    b_lane
+                } else {
+                    fx.bcx.ins().ireduce(types::I8, b_lane)
+                };
+
+                let positive = fx.bcx.ins().icmp_imm(IntCC::SignedGreaterThanOrEqual, shift, 0);
+                let zero = fx.bcx.ins().iconst(lane_clif_ty, 0);
+
+                let overflow =
+                    fx.bcx.ins().icmp_imm(IntCC::UnsignedGreaterThanOrEqual, shift, esize);
+
+                let left = fx.bcx.ins().ishl(a_lane, shift);
+                let left = fx.bcx.ins().select(overflow, zero, left);
+
+                let negated = fx.bcx.ins().ineg(shift);
+                let underflow =
+                    fx.bcx.ins().icmp_imm(IntCC::UnsignedGreaterThanOrEqual, negated, esize);
+
+                let sign = fx.bcx.ins().sshr_imm(a_lane, esize - 1);
+                let right = fx.bcx.ins().sshr(a_lane, negated);
+                let right = fx.bcx.ins().select(underflow, sign, right);
+
+                fx.bcx.ins().select(positive, left, right)
+            });
+        }
+
+        "llvm.aarch64.neon.ushl.v8i8"
+        | "llvm.aarch64.neon.ushl.v4i16"
+        | "llvm.aarch64.neon.ushl.v2i32"
+        | "llvm.aarch64.neon.ushl.v1i64"
+        | "llvm.aarch64.neon.ushl.v16i8"
+        | "llvm.aarch64.neon.ushl.v8i16"
+        | "llvm.aarch64.neon.ushl.v4i32"
+        | "llvm.aarch64.neon.ushl.v2i64" => {
+            // https://developer.arm.com/documentation/ddi0602/2026-03/SIMD-FP-Instructions/USHL--Unsigned-shift-left--register--
+            intrinsic_args!(fx, args => (a, b); intrinsic);
+
+            simd_pair_for_each_lane(fx, a, b, ret, &|fx, lane_ty, _res_lane_ty, a_lane, b_lane| {
+                let lane_clif_ty = fx.clif_type(lane_ty).unwrap();
+                let esize = i64::from(lane_clif_ty.bits());
+
+                let shift = if lane_clif_ty == types::I8 {
+                    b_lane
+                } else {
+                    fx.bcx.ins().ireduce(types::I8, b_lane)
+                };
+
+                let positive = fx.bcx.ins().icmp_imm(IntCC::SignedGreaterThanOrEqual, shift, 0);
+                let zero = fx.bcx.ins().iconst(lane_clif_ty, 0);
+
+                let overflow =
+                    fx.bcx.ins().icmp_imm(IntCC::UnsignedGreaterThanOrEqual, shift, esize);
+
+                let left = fx.bcx.ins().ishl(a_lane, shift);
+                let left = fx.bcx.ins().select(overflow, zero, left);
+
+                let negated = fx.bcx.ins().ineg(shift);
+                let underflow =
+                    fx.bcx.ins().icmp_imm(IntCC::UnsignedGreaterThanOrEqual, negated, esize);
+
+                let right = fx.bcx.ins().ushr(a_lane, negated);
+                let right = fx.bcx.ins().select(underflow, zero, right);
+
+                fx.bcx.ins().select(positive, left, right)
+            });
+        }
+
         "llvm.aarch64.neon.vsli.v8i8"
         | "llvm.aarch64.neon.vsli.v4i16"
         | "llvm.aarch64.neon.vsli.v2i32"
@@ -468,19 +551,6 @@ pub(super) fn codegen_aarch64_llvm_intrinsic_call<'tcx>(
         }
 
         /*
-        _ if intrinsic.starts_with("llvm.aarch64.neon.sshl.v")
-            || intrinsic.starts_with("llvm.aarch64.neon.sqshl.v")
-            // FIXME split this one out once saturating is implemented
-            || intrinsic.starts_with("llvm.aarch64.neon.sqshlu.v") =>
-        {
-            intrinsic_args!(fx, args => (a, b); intrinsic);
-
-            simd_pair_for_each_lane(fx, a, b, ret, &|fx, _lane_ty, _res_lane_ty, a, b| {
-                // FIXME saturate?
-                fx.bcx.ins().ishl(a, b)
-            });
-        }
-
         _ if intrinsic.starts_with("llvm.aarch64.neon.sqshrn.v") => {
             let (a, imm32) = match args {
                 [a, imm32] => (a, imm32),
