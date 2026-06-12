@@ -500,6 +500,210 @@ unsafe fn test_vshlq_u64() {
 }
 
 #[cfg(target_arch = "aarch64")]
+unsafe fn test_vqtbl1_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.tbl1.v8i8
+    let a = u8x16::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    let b = u8x8::from([12, 13, 14, 15, 16, 17, 18, 19]);
+    let e = u8x8::from([13, 14, 15, 16, 0, 0, 0, 0]);
+    let r: u8x8 = unsafe { transmute(vqtbl1_u8(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vqtbl2_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.tbl2.v8i8
+    let a0 = u8x16::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    let a1 = u8x16::from([17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]);
+    let a = unsafe { uint8x16x2_t(transmute(a0), transmute(a1)) };
+    let b = u8x8::from([28, 29, 30, 31, 32, 33, 34, 35]);
+    let e = u8x8::from([29, 30, 31, 32, 0, 0, 0, 0]);
+    let r: u8x8 = unsafe { transmute(vqtbl2_u8(a, transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vqtbl3_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.tbl3.v8i8
+    let a0 = u8x16::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    let a1 = u8x16::from([17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]);
+    let a2 = u8x16::from([33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]);
+    let a = unsafe { uint8x16x3_t(transmute(a0), transmute(a1), transmute(a2)) };
+    let b = u8x8::from([44, 45, 46, 47, 48, 49, 50, 51]);
+    let e = u8x8::from([45, 46, 47, 48, 0, 0, 0, 0]);
+    let r: u8x8 = unsafe { transmute(vqtbl3_u8(a, transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vqtbl4_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.tbl4.v8i8
+    let a0 = u8x16::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    let a1 = u8x16::from([17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]);
+    let a2 = u8x16::from([33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]);
+    let a3 = u8x16::from([49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64]);
+    let a = unsafe { uint8x16x4_t(transmute(a0), transmute(a1), transmute(a2), transmute(a3)) };
+    let b = u8x8::from([60, 61, 62, 63, 64, 65, 66, 67]);
+    let e = u8x8::from([61, 62, 63, 64, 0, 0, 0, 0]);
+    let r: u8x8 = unsafe { transmute(vqtbl4_u8(a, transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vqtbl1q_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.tbl1.v16i8
+    let a = u8x16::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    let b = u8x16::from([8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]);
+    let e = u8x16::from([9, 10, 11, 12, 13, 14, 15, 16, 0, 0, 0, 0, 0, 0, 0, 0]);
+    let r: u8x16 = unsafe { transmute(vqtbl1q_u8(transmute(a), transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vqtbl2q_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.tbl2.v16i8
+    let a0 = u8x16::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    let a1 = u8x16::from([17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]);
+    let a = unsafe { uint8x16x2_t(transmute(a0), transmute(a1)) };
+    let b = u8x16::from([24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]);
+    let e = u8x16::from([25, 26, 27, 28, 29, 30, 31, 32, 0, 0, 0, 0, 0, 0, 0, 0]);
+    let r: u8x16 = unsafe { transmute(vqtbl2q_u8(a, transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vqtbl3q_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.tbl3.v16i8
+    let a0 = u8x16::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    let a1 = u8x16::from([17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]);
+    let a2 = u8x16::from([33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]);
+    let a = unsafe { uint8x16x3_t(transmute(a0), transmute(a1), transmute(a2)) };
+    let b = u8x16::from([40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55]);
+    let e = u8x16::from([41, 42, 43, 44, 45, 46, 47, 48, 0, 0, 0, 0, 0, 0, 0, 0]);
+    let r: u8x16 = unsafe { transmute(vqtbl3q_u8(a, transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vqtbl4q_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.tbl4.v16i8
+    let a0 = u8x16::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    let a1 = u8x16::from([17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]);
+    let a2 = u8x16::from([33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]);
+    let a3 = u8x16::from([49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64]);
+    let a = unsafe { uint8x16x4_t(transmute(a0), transmute(a1), transmute(a2), transmute(a3)) };
+    let b = u8x16::from([56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71]);
+    let e = u8x16::from([57, 58, 59, 60, 61, 62, 63, 64, 0, 0, 0, 0, 0, 0, 0, 0]);
+    let r: u8x16 = unsafe { transmute(vqtbl4q_u8(a, transmute(b))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vqtbx1_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.tbx1.v8i8
+    let a = u8x8::from([72, 73, 74, 75, 76, 77, 78, 79]);
+    let b = u8x16::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    let c = u8x8::from([12, 13, 14, 15, 16, 17, 18, 19]);
+    let e = u8x8::from([13, 14, 15, 16, 76, 77, 78, 79]);
+    let r: u8x8 = unsafe { transmute(vqtbx1_u8(transmute(a), transmute(b), transmute(c))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vqtbx2_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.tbx2.v8i8
+    let a = u8x8::from([72, 73, 74, 75, 76, 77, 78, 79]);
+    let b0 = u8x16::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    let b1 = u8x16::from([17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]);
+    let b = unsafe { uint8x16x2_t(transmute(b0), transmute(b1)) };
+    let c = u8x8::from([28, 29, 30, 31, 32, 33, 34, 35]);
+    let e = u8x8::from([29, 30, 31, 32, 76, 77, 78, 79]);
+    let r: u8x8 = unsafe { transmute(vqtbx2_u8(transmute(a), b, transmute(c))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vqtbx3_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.tbx3.v8i8
+    let a = u8x8::from([72, 73, 74, 75, 76, 77, 78, 79]);
+    let b0 = u8x16::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    let b1 = u8x16::from([17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]);
+    let b2 = u8x16::from([33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]);
+    let b = unsafe { uint8x16x3_t(transmute(b0), transmute(b1), transmute(b2)) };
+    let c = u8x8::from([44, 45, 46, 47, 48, 49, 50, 51]);
+    let e = u8x8::from([45, 46, 47, 48, 76, 77, 78, 79]);
+    let r: u8x8 = unsafe { transmute(vqtbx3_u8(transmute(a), b, transmute(c))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vqtbx4_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.tbx4.v8i8
+    let a = u8x8::from([72, 73, 74, 75, 76, 77, 78, 79]);
+    let b0 = u8x16::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    let b1 = u8x16::from([17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]);
+    let b2 = u8x16::from([33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]);
+    let b3 = u8x16::from([49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64]);
+    let b = unsafe { uint8x16x4_t(transmute(b0), transmute(b1), transmute(b2), transmute(b3)) };
+    let c = u8x8::from([60, 61, 62, 63, 64, 65, 66, 67]);
+    let e = u8x8::from([61, 62, 63, 64, 76, 77, 78, 79]);
+    let r: u8x8 = unsafe { transmute(vqtbx4_u8(transmute(a), b, transmute(c))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vqtbx1q_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.tbx1.v16i8
+    let a = u8x16::from([72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87]);
+    let b = u8x16::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    let c = u8x16::from([8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]);
+    let e = u8x16::from([9, 10, 11, 12, 13, 14, 15, 16, 80, 81, 82, 83, 84, 85, 86, 87]);
+    let r: u8x16 = unsafe { transmute(vqtbx1q_u8(transmute(a), transmute(b), transmute(c))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vqtbx2q_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.tbx2.v16i8
+    let a = u8x16::from([72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87]);
+    let b0 = u8x16::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    let b1 = u8x16::from([17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]);
+    let b = unsafe { uint8x16x2_t(transmute(b0), transmute(b1)) };
+    let c = u8x16::from([24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]);
+    let e = u8x16::from([25, 26, 27, 28, 29, 30, 31, 32, 80, 81, 82, 83, 84, 85, 86, 87]);
+    let r: u8x16 = unsafe { transmute(vqtbx2q_u8(transmute(a), b, transmute(c))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vqtbx3q_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.tbx3.v16i8
+    let a = u8x16::from([72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87]);
+    let b0 = u8x16::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    let b1 = u8x16::from([17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]);
+    let b2 = u8x16::from([33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]);
+    let b = unsafe { uint8x16x3_t(transmute(b0), transmute(b1), transmute(b2)) };
+    let c = u8x16::from([40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55]);
+    let e = u8x16::from([41, 42, 43, 44, 45, 46, 47, 48, 80, 81, 82, 83, 84, 85, 86, 87]);
+    let r: u8x16 = unsafe { transmute(vqtbx3q_u8(transmute(a), b, transmute(c))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
+unsafe fn test_vqtbx4q_u8() {
+    // AArch64 llvm intrinsic: llvm.aarch64.neon.tbx4.v16i8
+    let a = u8x16::from([72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87]);
+    let b0 = u8x16::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    let b1 = u8x16::from([17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]);
+    let b2 = u8x16::from([33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]);
+    let b3 = u8x16::from([49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64]);
+    let b = unsafe { uint8x16x4_t(transmute(b0), transmute(b1), transmute(b2), transmute(b3)) };
+    let c = u8x16::from([56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71]);
+    let e = u8x16::from([57, 58, 59, 60, 61, 62, 63, 64, 80, 81, 82, 83, 84, 85, 86, 87]);
+    let r: u8x16 = unsafe { transmute(vqtbx4q_u8(transmute(a), b, transmute(c))) };
+    assert_eq!(r, e);
+}
+
+#[cfg(target_arch = "aarch64")]
 #[target_feature(enable = "aes")]
 unsafe fn test_vaeseq_u8() {
     // AArch64 llvm intrinsic: llvm.aarch64.crypto.aese
@@ -1157,6 +1361,26 @@ fn main() {
         test_vshlq_u16();
         test_vshlq_u32();
         test_vshlq_u64();
+
+        test_vqtbl1_u8();
+        test_vqtbl2_u8();
+        test_vqtbl3_u8();
+        test_vqtbl4_u8();
+
+        test_vqtbl1q_u8();
+        test_vqtbl2q_u8();
+        test_vqtbl3q_u8();
+        test_vqtbl4q_u8();
+
+        test_vqtbx1_u8();
+        test_vqtbx2_u8();
+        test_vqtbx3_u8();
+        test_vqtbx4_u8();
+
+        test_vqtbx1q_u8();
+        test_vqtbx2q_u8();
+        test_vqtbx3q_u8();
+        test_vqtbx4q_u8();
 
         test_crc32();
 

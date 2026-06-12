@@ -414,34 +414,77 @@ pub(super) fn codegen_aarch64_llvm_intrinsic_call<'tcx>(
             );
         }
 
-        // FIXME generalize vector types
-        "llvm.aarch64.neon.tbl1.v8i8" => {
-            intrinsic_args!(fx, args => (t, idx); intrinsic);
+        "llvm.aarch64.neon.tbl1.v8i8"
+        | "llvm.aarch64.neon.tbl2.v8i8"
+        | "llvm.aarch64.neon.tbl3.v8i8"
+        | "llvm.aarch64.neon.tbl4.v8i8"
+        | "llvm.aarch64.neon.tbl1.v16i8"
+        | "llvm.aarch64.neon.tbl2.v16i8"
+        | "llvm.aarch64.neon.tbl3.v16i8"
+        | "llvm.aarch64.neon.tbl4.v16i8" => {
+            // https://developer.arm.com/documentation/ddi0602/2026-03/SIMD-FP-Instructions/TBL--Table-vector-lookup-
+            let args = args.iter().map(|arg| codegen_operand(fx, &arg.node)).collect::<Vec<_>>();
+            let [sources @ .., indices] = args.as_slice() else {
+                bug_on_incorrect_arg_count(intrinsic);
+            };
 
-            let zero = fx.bcx.ins().iconst(types::I8, 0);
-            for i in 0..8 {
-                let idx_lane = idx.value_lane(fx, i).load_scalar(fx);
-                let is_zero =
-                    fx.bcx.ins().icmp_imm(IntCC::UnsignedGreaterThanOrEqual, idx_lane, 16);
-                let t_idx = fx.bcx.ins().uextend(fx.pointer_type, idx_lane);
-                let t_lane = t.value_lane_dyn(fx, t_idx).load_scalar(fx);
-                let res = fx.bcx.ins().select(is_zero, zero, t_lane);
-                ret.place_lane(fx, i).to_ptr().store(fx, res, MemFlags::trusted());
+            let len = 16 * sources.len() as i64;
+            let table = fx.create_stack_slot(len as u32, 16);
+            for (offset, source) in (0..).step_by(16).zip(sources) {
+                let ptr = table.offset_i64(fx, offset);
+                CPlace::for_ptr(ptr, source.layout()).write_cvalue(fx, *source);
             }
+
+            simd_for_each_lane(fx, *indices, ret, &|fx, _lane_ty, _res_lane_ty, index| {
+                let valid = fx.bcx.ins().icmp_imm(IntCC::UnsignedLessThan, index, len);
+                let zero = fx.bcx.ins().iconst(types::I8, 0);
+
+                let clamped = fx.bcx.ins().select(valid, index, zero);
+                let offset = fx.bcx.ins().uextend(fx.pointer_type, clamped);
+                let byte = table.offset_value(fx, offset).load(fx, types::I8, MemFlags::trusted());
+
+                fx.bcx.ins().select(valid, byte, zero)
+            });
         }
-        "llvm.aarch64.neon.tbl1.v16i8" => {
-            intrinsic_args!(fx, args => (t, idx); intrinsic);
 
-            let zero = fx.bcx.ins().iconst(types::I8, 0);
-            for i in 0..16 {
-                let idx_lane = idx.value_lane(fx, i).load_scalar(fx);
-                let is_zero =
-                    fx.bcx.ins().icmp_imm(IntCC::UnsignedGreaterThanOrEqual, idx_lane, 16);
-                let t_idx = fx.bcx.ins().uextend(fx.pointer_type, idx_lane);
-                let t_lane = t.value_lane_dyn(fx, t_idx).load_scalar(fx);
-                let res = fx.bcx.ins().select(is_zero, zero, t_lane);
-                ret.place_lane(fx, i).to_ptr().store(fx, res, MemFlags::trusted());
+        "llvm.aarch64.neon.tbx1.v8i8"
+        | "llvm.aarch64.neon.tbx2.v8i8"
+        | "llvm.aarch64.neon.tbx3.v8i8"
+        | "llvm.aarch64.neon.tbx4.v8i8"
+        | "llvm.aarch64.neon.tbx1.v16i8"
+        | "llvm.aarch64.neon.tbx2.v16i8"
+        | "llvm.aarch64.neon.tbx3.v16i8"
+        | "llvm.aarch64.neon.tbx4.v16i8" => {
+            // https://developer.arm.com/documentation/ddi0602/2026-03/SIMD-FP-Instructions/TBX--Table-vector-lookup-extension-
+            let args = args.iter().map(|arg| codegen_operand(fx, &arg.node)).collect::<Vec<_>>();
+            let [fallback, sources @ .., indices] = args.as_slice() else {
+                bug_on_incorrect_arg_count(intrinsic);
+            };
+
+            let len = 16 * sources.len() as i64;
+            let table = fx.create_stack_slot(len as u32, 16);
+            for (offset, source) in (0..).step_by(16).zip(sources) {
+                let ptr = table.offset_i64(fx, offset);
+                CPlace::for_ptr(ptr, source.layout()).write_cvalue(fx, *source);
             }
+
+            simd_pair_for_each_lane(
+                fx,
+                *indices,
+                *fallback,
+                ret,
+                &|fx, _lane_ty, _res_lane_ty, index, unchanged| {
+                    let valid = fx.bcx.ins().icmp_imm(IntCC::UnsignedLessThan, index, len);
+                    let zero = fx.bcx.ins().iconst(types::I8, 0);
+
+                    let clamped = fx.bcx.ins().select(valid, index, zero);
+                    let offset = fx.bcx.ins().uextend(fx.pointer_type, clamped);
+                    let byte =
+                        table.offset_value(fx, offset).load(fx, types::I8, MemFlags::trusted());
+
+                    fx.bcx.ins().select(valid, byte, unchanged)
+                },
+            );
         }
 
         "llvm.aarch64.neon.sshl.v8i8"
